@@ -12,25 +12,46 @@ public class CountryManager {
     public static let shared: CountryManager = CountryManager()
     private var countries: [CountryList] = []
     
+    // Lookup dictionaries for O(1) performance
+    private var countryByCode: [String: CountryList] = [:]
+    private var countryByName: [String: CountryList] = [:]
+    private var countryByDialCode: [String: CountryList] = [:]
+    private var countryByEmoji: [String: CountryList] = [:]
+    
     private init() {
          countries = CountryModelList().countryList()
+         buildLookupDictionaries()
+    }
+    
+    private func buildLookupDictionaries() {
+        for country in countries {
+            countryByCode[country.code.lowercased()] = country
+            countryByName[country.name.lowercased()] = country
+            countryByDialCode[country.dial_code] = country
+            countryByEmoji[country.emoji] = country
+        }
     }
     
     public func country(withCode code: String) -> CountryList? {
-        return countries.first(where: { $0.code.caseInsensitiveCompare(code) == .orderedSame })
+        return countryByCode[code.lowercased()]
     }
     
     public func country(withName name: String) -> CountryList? {
-        return countries.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame })
+        return countryByName[name.lowercased()]
     }
     
     public func country(withDialCode dialCode: String) -> CountryList? {
         let formattedDialCode = dialCode.trimmingCharacters(in: .whitespacesAndNewlines)
         let finalDialCode = formattedDialCode.hasPrefix("+") ? formattedDialCode : "+" + formattedDialCode
-        return countries.first(where: { $0.dial_code == finalDialCode })
+        return countryByDialCode[finalDialCode]
     }
     
     public func country(withEmoji emoji: String) -> CountryList? {
-        return countries.first(where: { $0.emoji == emoji })
+        return countryByEmoji[emoji]
+    }
+    
+    // Provide access to all countries for efficient operations
+    public func allCountries() -> [CountryList] {
+        return countries
     }
 }

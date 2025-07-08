@@ -33,44 +33,31 @@ class ViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-
-        btn001.customUI()
+        super.viewDidAppear(animated)
         
-        UIView.animate(withDuration: 0.2, delay: 0.05) { [self] in
-            btn002.customUI()
-        }
+        // Optimize button animations by using a batch approach
+        let buttons = [btn001, btn002, btn003, btn004, btn005, btn006, btn007]
         
-        UIView.animate(withDuration: 0.2, delay: 0.10) { [self] in
-            btn003.customUI()
-        }
-        
-        UIView.animate(withDuration: 0.2, delay: 0.15) { [self] in
-            btn004.customUI()
-        }
-        
-        UIView.animate(withDuration: 0.2, delay: 0.20) { [self] in
-            btn005.customUI()
-        }
-        
-        UIView.animate(withDuration: 0.2, delay: 0.25) { [self] in
-            btn006.customUI()
-        }
-
-        UIView.animate(withDuration: 0.2, delay: 0.30) { [self] in
-            btn007.customUI()
+        for (index, button) in buttons.enumerated() {
+            guard let button = button else { continue }
+            
+            UIView.animate(withDuration: 0.15, delay: Double(index) * 0.05) {
+                button.customUI()
+            }
         }
     }
 
     func updateValue(result: Result<CountryList, CustomError>){
         
-        UIView.animate(withDuration: 0.6) {
-            switch result {
-            case .success(let data):
+        switch result {
+        case .success(let data):
+            UIView.animate(withDuration: 0.3) {
                 self.responseLbl.text = "Country Name: \(data.name) \n Flag: \(data.emoji) \n Code: \(data.code) \n Country Code: \(data.dial_code)"
-            case .failure(let err):
-                debugPrint(err.localizedDescription)
+            }
+        case .failure(let err):
+            debugPrint(err.localizedDescription)
+            UIView.animate(withDuration: 0.3) {
                 self.responseLbl.text = err.localizedDescription
-                
             }
         }
     }

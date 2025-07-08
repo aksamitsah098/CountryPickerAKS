@@ -128,12 +128,23 @@ extension CountryPicker: UITextFieldDelegate {
     
     public func textFieldDidChangeSelection(_ textField: UITextField) {
         
-        let ds = textField.text ?? ""
-        seacrchCloseBtn.isHidden = ds.isEmpty
+        let searchText = textField.text ?? ""
+        seacrchCloseBtn.isHidden = searchText.isEmpty
         
-        data = ds.isEmpty ? backupData : backupData.filter { $0.name.lowercased().contains(ds.lowercased()) || $0.code.lowercased().contains(ds.lowercased()) || $0.dial_code.contains(ds) }
-        
-        ds.isEmpty ?  nil : data.sort { $0.name < $1.name }
+        if searchText.isEmpty {
+            data = backupData
+        } else {
+            let lowercasedSearch = searchText.lowercased()
+            data = backupData.filter { country in
+                country.name.localizedCaseInsensitiveContains(searchText) ||
+                country.code.localizedCaseInsensitiveContains(searchText) ||
+                country.dial_code.contains(searchText)
+            }
+            
+            if !data.isEmpty {
+                data.sort { $0.name < $1.name }
+            }
+        }
         
         tableView.reloadData()
         
